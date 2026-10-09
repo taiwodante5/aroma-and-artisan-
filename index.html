@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aroma & Artisan - Online Coffee Ordering</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Playfair Display & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        coffee: {
+                            50: '#fdfbf7',
+                            100: '#f7f2ea',
+                            200: '#ebdccb',
+                            300: '#dbc0a3',
+                            400: '#ca9e79',
+                            500: '#b88155',
+                            600: '#a36944',
+                            700: '#835037',
+                            800: '#6d4231',
+                            900: '#58372b',
+                            950: '#2f1a13',
+                        },
+                        amberGold: '#d97706',
+                        cream: '#FAF7F2'
+                    },
+                    fontFamily: {
+                        serif: ['Playfair Display', 'serif'],
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #FAF7F2;
+            font-family: 'Inter', sans-serif;
+            color: #2f1a13;
+        }
+        .font-serif-title {
+            font-family: 'Playfair Display', serif;
+        }
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f7f2ea;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ca9e79;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a36944;
+        }
+        /* Pulse animation for brewing indicator */
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
+        }
+        .pulse-glow {
+            animation: pulseGlow 2s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-coffee-300 selection:text-coffee-950">
+
+    <!-- HEADER NAVBAR -->
+    <header class="sticky top-0 z-30 bg-coffee-950/95 backdrop-blur-md text-coffee-100 shadow-lg border-b border-coffee-800 transition-all">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Brand Logo -->
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="scrollToTop()">
+                <div class="w-11 h-11 rounded-full bg-gradient-to-tr from-coffee-600 to-amber-500 flex items-center justify-center text-white shadow-md">
+                    <i class="fa-solid fa-mug-hot text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-serif-title text-xl sm:text-2xl font-bold tracking-wide text-white">Aroma & Artisan</h1>
+                    <p class="text-xs text-coffee-300 tracking-widest uppercase font-medium">Coffee Roasters</p>
+                </div>
+            </div>
+
+            <!-- Quick Info & Cart Trigger -->
+            <div class="flex items-center space-x-3 sm:space-x-6">
+                <div class="hidden md:flex items-center text-xs text-coffee-300 space-x-4 border-r border-coffee-800 pr-6">
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-solid fa-location-dot text-amber-500"></i>
+                        <span>452 Espresso Blvd, Cityville</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-regular fa-clock text-amber-500"></i>
+                        <span>Open: 6:30 AM - 8:00 PM</span>
+                    </div>
+                </div>
+
+                <!-- Cart Button -->
+                <button onclick="toggleCartDrawer(true)" class="relative bg-amber-600 hover:bg-amber-500 text-white px-4 py-2.5 rounded-full font-medium transition-all shadow-md hover:shadow-lg flex items-center space-x-2 group">
+                    <i class="fa-solid fa-basket-shopping text-lg group-hover:scale-110 transition-transform"></i>
+                    <span class="hidden sm:inline text-sm font-semibold">Your Order</span>
+                    <span id="cart-badge" class="bg-coffee-950 text-amber-400 font-bold text-xs px-2.5 py-0.5 rounded-full border border-amber-500/30">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-grow">
+        <!-- HERO SECTION -->
+        <section class="relative bg-coffee-950 text-white overflow-hidden py-16 lg:py-24">
+            <!-- Background Subtle Overlay -->
+            <div class="absolute inset-0 opacity-20 bg-[radial-gradient(#ca9e79_1px,transparent_1px)] [background-size:16px_16px]"></div>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                    
+                    <!-- Hero Text -->
+                    <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+                        <div class="inline-flex items-center space-x-2 bg-coffee-900/80 border border-coffee-700/60 rounded-full px-4 py-1.5 text-xs text-amber-400 font-medium">
+                            <i class="fa-solid fa-sparkles"></i>
+                            <span>Freshly Roasted Small-Batch Beans Daily</span>
+                        </div>
+                        <h2 class="font-serif-title text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight tracking-wide">
+                            Crafted Coffee, <br><span class="italic font-normal text-amber-400">Pure Joy in Every Cup</span>
+                        </h2>
+                        <p class="text-coffee-200 text-base sm:text-lg max-w-2xl font-light leading-relaxed mx-auto lg:mx-0">
+                            Skip the line. Order your favorite artisanal brews, cold extractions, and freshly baked viennoiserie for quick pickup or local doorstep delivery.
+                        </p>
+                        
+                        <!-- Hero Buttons & Search -->
+                        <div class="pt-4 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+                            <a href="#menu-section" class="w-full sm:w-auto text-center bg-gradient-to-r from-amber-600 to-coffee-500 hover:from-amber-500 hover:to-coffee-400 text-white px-8 py-3.5 rounded-xl font-semibold shadow-xl transition-all hover:-translate-y-0.5">
+                                Explore Menu & Order
+                            </a>
+                            <button onclick="scrollToRewards()" class="w-full sm:w-auto flex items-center justify-center space-x-2 bg-coffee-900/60 hover:bg-coffee-800 border border-coffee-700 text-coffee-100 px-6 py-3.5 rounded-xl font-medium transition-all">
+                                <i class="fa-solid fa-star text-amber-400"></i>
+                                <span>Perks & Rewards</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Hero Visual / Feature Card -->
+                    <div class="lg:col-span-5 flex justify-center">
+                        <div class="relative w-full max-w-md bg-gradient-to-b from-coffee-900 to-coffee-950 p-6 rounded-3xl border border-coffee-800 shadow-2xl">
+                            <div class="relative h-64 sm:h-72 rounded-2xl overflow-hidden mb-5">
+                                <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=800&q=80" 
+                                     alt="Artisanal Latte Art" 
+                                     class="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+                                     onerror="this.src='https://placehold.co/600x400/58372b/ffffff?text=Artisan+Coffee'">
+                                <div class="absolute inset-0 bg-gradient-to-t from-coffee-950/90 via-transparent to-transparent"></div>
+                                <div class="absolute bottom-4 left-4 right-4 text-white">
+                                    <span class="bg-amber-600 text-xs px-2.5 py-1 rounded-full font-bold uppercase tracking-wider">Barista's Choice</span>
+                                    <h3 class="font-serif-title text-xl font-bold mt-1">Caramel Velvet Latte</h3>
+                                    <p class="text-xs text-coffee-300">Double shot espresso, steamed oat milk, handcrafted caramel drip.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between text-xs text-coffee-300 pt-2 border-t border-coffee-800/80">
+                                <span><i class="fa-solid fa-leaf text-green-400 mr-1"></i> 100% Organic Beans</span>
+                                <span><i class="fa-solid fa-bolt text-amber-400 mr-1"></i> Ready in ~8 mins</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- MENU SECTION -->
+        <section id="menu-section" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <!-- Section Header -->
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4 border-b border-coffee-200 pb-6">
+                <div>
+                    <h2 class="font-serif-title text-3xl sm:text-4xl font-bold text-coffee-950">Our Craft Menu</h2>
+                    <p class="text-coffee-700 text-sm mt-1">Handcrafted beverages and fresh daily baked goods.</p>
+                </div>
+
+                <!-- Search and Dietary Filters Box -->
+                <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                    <!-- Search Input -->
+                    <div class="relative flex-grow sm:w-64">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-coffee-400 text-sm"></i>
+                        <input type="text" id="menu-search" oninput="handleSearchOrFilterChange()" placeholder="Search menu..." 
+                               class="w-full pl-10 pr-4 py-2.5 bg-white border border-coffee-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all shadow-sm">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dietary Badges Filter Row -->
+            <div class="flex flex-wrap items-center gap-2 mb-8">
+                <span class="text-xs font-semibold text-coffee-800 uppercase tracking-wider mr-2">Dietary Preferences:</span>
+                <button onclick="toggleDietaryFilter('vegan')" id="diet-vegan" class="diet-btn text-xs px-3 py-1.5 rounded-full border border-coffee-300 bg-white text-coffee-800 hover:bg-coffee-100 transition-all">
+                    🌱 Vegan
+                </button>
+                <button onclick="toggleDietaryFilter('gluten-free')" id="diet-gluten-free" class="diet-btn text-xs px-3 py-1.5 rounded-full border border-coffee-300 bg-white text-coffee-800 hover:bg-coffee-100 transition-all">
+                    🌾 Gluten-Free
+                </button>
+                <button onclick="toggleDietaryFilter('dairy-free')" id="diet-dairy-free" class="diet-btn text-xs px-3 py-1.5 rounded-full border border-coffee-300 bg-white text-coffee-800 hover:bg-coffee-100 transition-all">
+                    🥛 Dairy-Free
+                </button>
+                <button onclick="toggleDietaryFilter('decaf')" id="diet-decaf" class="diet-btn text-xs px-3 py-1.5 rounded-full border border-coffee-300 bg-white text-coffee-800 hover:bg-coffee-100 transition-all">
+                    ☕ Decaf Available
+                </button>
+                <button onclick="clearDietaryFilters()" id="diet-clear" class="hidden text-xs text-amber-700 underline font-medium ml-2 hover:text-amber-900">
+                    Clear Dietary Filters
+                </button>
+            </div>
+
+            <!-- Category Tabs -->
+            <div class="flex space-x-2 overflow-x-auto pb-4 scrollbar-none border-b border-coffee-200 mb-8" id="category-tabs">
+                <!-- Injected JS Tabs Here -->
+            </div>
+
+            <!-- Menu Grid -->
+            <div id="menu-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- Dynamically Populated Menu Cards -->
+            </div>
+
+            <!-- Empty Search State -->
+            <div id="empty-state" class="hidden text-center py-16 bg-white rounded-3xl border border-dashed border-coffee-300 my-6">
+                <i class="fa-solid fa-mug-saucer text-4xl text-coffee-300 mb-3"></i>
+                <h3 class="font-serif-title text-lg font-bold text-coffee-900">No items found</h3>
+                <p class="text-sm text-coffee-600 mt-1">Try adjusting your search terms or dietary filters.</p>
+                <button onclick="resetSearchAndFilters()" class="mt-4 bg-coffee-800 text-white text-xs px-4 py-2 rounded-lg font-medium hover:bg-coffee-900">Reset Search</button>
+            </div>
+        </section>
+
+        <!-- LOYALTY PERKS SECTION -->
+        <section id="rewards-section" class="bg-gradient-to-r from-coffee-900 via-coffee-800 to-coffee-950 text-white py-12 my-12">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-8 bg-white/5 p-8 rounded-3xl border border-white/10 backdrop-blur-sm">
+                    <div class="space-y-3 text-center md:text-left">
+                        <span class="bg-amber-500/20 text-amber-300 text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider border border-amber-500/30">Artisan Loyalty Club</span>
+                        <h3 class="font-serif-title text-2xl sm:text-3xl font-bold">Earn Free Coffee With Every Order</h3>
+                        <p class="text-coffee-200 text-sm max-w-xl">
+                            Earn 10 Bean Points for every $1 spent. Redeem 100 points for a free pastry or handcrafted beverage on your next order!
+                        </p>
+                    </div>
+                    <div class="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
+                        <div class="bg-coffee-950/80 px-6 py-4 rounded-2xl border border-coffee-700/60 text-center w-full sm:w-auto">
+                            <span class="text-xs text-coffee-300 uppercase font-semibold block">Your Current Status</span>
+                            <span class="text-xl font-bold text-amber-400"><i class="fa-solid fa-crown text-amber-400 mr-2"></i>Gold Member</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-coffee-950 text-coffee-300 border-t border-coffee-800 py-12 text-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div class="space-y-3">
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-mug-hot text-amber-500 text-xl"></i>
+                    <span class="font-serif-title text-lg font-bold text-white">Aroma & Artisan</span>
+                </div>
+                <p class="text-xs text-coffee-400 leading-relaxed">Dedicated to the art of small-batch roasting and memorable coffee moments.</p>
+            </div>
+            <div>
+                <h4 class="text-white font-semibold mb-3 text-xs uppercase tracking-wider">Store Hours</h4>
+                <p class="text-xs leading-relaxed">Mon - Fri: 6:30 AM - 8:00 PM</p>
+                <p class="text-xs leading-relaxed">Sat - Sun: 7:00 AM - 9:00 PM</p>
+            </div>
+            <div>
+                <h4 class="text-white font-semibold mb-3 text-xs uppercase tracking-wider">Location & Contact</h4>
+                <p class="text-xs leading-relaxed">452 Espresso Blvd, Suite A</p>
+                <p class="text-xs leading-relaxed">orders@aromaartisan.com</p>
+                <p class="text-xs leading-relaxed">+1 (555) 234-5678</p>
+            </div>
+            <div>
+                <h4 class="text-white font-semibold mb-3 text-xs uppercase tracking-wider">Follow Us</h4>
+                <div class="flex space-x-4 text-lg">
+                    <a href="#" class="hover:text-amber-400 transition-colors"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#" class="hover:text-amber-400 transition-colors"><i class="fa-brands fa-facebook"></i></a>
+                    <a href="#" class="hover:text-amber-400 transition-colors"><i class="fa-brands fa-x-twitter"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 pt-6 border-t border-coffee-900 text-center text-xs text-coffee-500">
+            &copy; 2026 Aroma & Artisan Coffee Roasters. All rights reserved. Built for seamless digital ordering.
+        </div>
+    </footer>
+
+
+    <!-- MODAL 1: ITEM CUSTOMIZATION MODAL -->
+    <div id="customize-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 transition-opacity">
+        <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200">
+            <!-- Modal Header -->
+            <div class="relative h-48 bg-coffee-900 text-white overflow-hidden flex-shrink-0">
+                <img id="modal-item-image" src="" alt="" class="w-full h-full object-cover opacity-80">
+                <button onclick="closeCustomizeModal()" class="absolute top-4 right-4 bg-black/50 hover:bg-black/80 text-white w-8 h-8 rounded-full flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-coffee-950 via-coffee-950/70 to-transparent p-4">
+                    <h3 id="modal-item-title" class="font-serif-title text-2xl font-bold text-white">Item Name</h3>
+                    <p id="modal-item-price" class="text-amber-400 font-semibold text-lg">$0.00</p>
+                </div>
+            </div>
+
+            <!-- Modal Customization Options Body -->
+            <div class="p-6 overflow-y-auto space-y-6 flex-grow text-sm text-coffee-900" id="modal-options-container">
+                <!-- Options populated dynamically -->
+            </div>
+
+            <!-- Modal Footer / Add to Cart CTA -->
+            <div class="p-4 bg-coffee-50 border-t border-coffee-200 flex items-center justify-between flex-shrink-0 gap-4">
+                <div class="flex items-center space-x-3 bg-white border border-coffee-300 rounded-xl px-3 py-1.5">
+                    <button onclick="adjustModalQty(-1)" class="text-coffee-600 hover:text-coffee-950 font-bold px-2 text-lg">-</button>
+                    <span id="modal-qty" class="font-bold text-base min-w-[20px] text-center">1</span>
+                    <button onclick="adjustModalQty(1)" class="text-coffee-600 hover:text-coffee-950 font-bold px-2 text-lg">+</button>
+                </div>
+
+                <button onclick="confirmAddToCart()" class="flex-grow bg-amber-600 hover:bg-amber-500 text-white font-semibold py-3 px-6 rounded-xl shadow-md transition-all flex items-center justify-between">
+                    <span>Add to Order</span>
+                    <span id="modal-total-btn-price" class="font-bold text-amber-200">$0.00</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- MODAL 2: SHOPPING CART SIDE DRAWER -->
+    <div id="cart-drawer-backdrop" class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm hidden transition-opacity" onclick="toggleCartDrawer(false)"></div>
+    
+    <div id="cart-drawer" class="fixed top-0 right-0 z-50 w-full sm:w-[450px] h-full bg-white shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
+        <!-- Cart Header -->
+        <div class="p-5 bg-coffee-950 text-white flex items-center justify-between border-b border-coffee-800">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-basket-shopping text-amber-500 text-xl"></i>
+                <h3 class="font-serif-title text-xl font-bold">Your Order Cart</h3>
+            </div>
+            <button onclick="toggleCartDrawer(false)" class="text-coffee-300 hover:text-white text-xl p-1">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Loyalty Estimator Bar -->
+        <div class="bg-amber-50 border-b border-amber-200 px-5 py-2.5 flex items-center justify-between text-xs text-amber-900 font-medium">
+            <div class="flex items-center space-x-1.5">
+                <i class="fa-solid fa-star text-amber-600"></i>
+                <span>Loyalty Points Preview:</span>
+            </div>
+            <span id="cart-loyalty-points" class="font-bold text-amber-700">+0 pts earned</span>
+        </div>
+
+        <!-- Cart Items List -->
+        <div id="cart-items-container" class="flex-grow overflow-y-auto p-5 space-y-4">
+            <!-- Dynamically populated or empty state -->
+        </div>
+
+        <!-- Cart Summary & Promo Section -->
+        <div class="p-5 bg-coffee-50 border-t border-coffee-200 space-y-3 flex-shrink-0 text-sm">
+            <!-- Promo Code Input -->
+            <div class="flex space-x-2">
+                <input type="text" id="promo-input" placeholder="Promo code (e.g. COFFEE10)" class="uppercase flex-grow px-3 py-2 bg-white border border-coffee-300 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-amber-500">
+                <button onclick="applyPromoCode()" class="bg-coffee-800 hover:bg-coffee-900 text-white text-xs px-4 py-2 rounded-lg font-medium transition-colors">Apply</button>
+            </div>
+            <p id="promo-message" class="text-xs hidden"></p>
+
+            <!-- Tip Selection -->
+            <div>
+                <label class="block text-xs font-semibold text-coffee-800 mb-1">Add Barista Tip</label>
+                <div class="grid grid-cols-4 gap-2 text-xs">
+                    <button onclick="setTip(0.10)" class="tip-btn p-1.5 rounded border border-coffee-300 bg-white hover:bg-coffee-100 font-medium text-center" data-tip="0.10">10%</button>
+                    <button onclick="setTip(0.15)" class="tip-btn p-1.5 rounded border border-coffee-300 bg-white hover:bg-coffee-100 font-medium text-center" data-tip="0.15">15%</button>
+                    <button onclick="setTip(0.20)" class="tip-btn p-1.5 rounded border border-coffee-300 bg-white hover:bg-coffee-100 font-medium text-center" data-tip="0.20">20%</button>
+                    <button onclick="setTip(0.0)" class="tip-btn p-1.5 rounded border border-coffee-300 bg-white hover:bg-coffee-100 font-medium text-center" data-tip="0">No Tip</button>
+                </div>
+            </div>
+
+            <!-- Price Calculations Breakdown -->
+            <div class="space-y-1.5 text-xs text-coffee-800 pt-2 border-t border-coffee-200">
+                <div class="flex justify-between">
+                    <span>Subtotal</span>
+                    <span id="summary-subtotal" class="font-semibold">$0.00</span>
+                </div>
+                <div id="summary-discount-row" class="flex justify-between text-emerald-700 hidden">
+                    <span>Discount</span>
+                    <span id="summary-discount">-$0.00</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>Estimated Tax (8%)</span>
+                    <span id="summary-tax" class="font-semibold">$0.00</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>Barista Tip</span>
+                    <span id="summary-tip" class="font-semibold">$0.00</span>
+                </div>
+                <div class="flex justify-between text-base font-bold text-coffee-950 pt-2 border-t border-coffee-300">
+                    <span>Total Amount</span>
+                    <span id="summary-total" class="text-amber-700">$0.00</span>
+                </div>
+            </div>
+
+            <!-- Checkout CTA Button -->
+            <button onclick="openCheckoutModal()" id="checkout-btn" disabled class="w-full bg-amber-600 hover:bg-amber-500 disabled:bg-coffee-300 text-white font-bold py-3 rounded-xl shadow-lg transition-all flex items-center justify-center space-x-2">
+                <span>Proceed to Checkout</span>
+                <i class="fa-solid fa-arrow-right text-sm"></i>
+            </button>
+        </div>
+    </div>
+
+
+    <!-- MODAL 3: CHECKOUT FLOW & PAYMENT MODAL -->
+    <div id="checkout-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200">
+            <!-- Checkout Header -->
+            <div class="bg-coffee-950 text-white px-6 py-4 flex items-center justify-between flex-shrink-0">
+                <h3 class="font-serif-title text-xl font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-credit-card text-amber-500"></i> Checkout & Fulfillment
+                </h3>
+                <button onclick="closeCheckoutModal()" class="text-coffee-300 hover:text-white text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Checkout Form Content -->
+            <div class="p-6 overflow-y-auto space-y-6 flex-grow text-sm">
+                <!-- Fulfillment Type Switcher -->
+                <div>
+                    <label class="block text-xs font-bold text-coffee-800 uppercase tracking-wider mb-2">1. Fulfillment Method</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="border-2 border-amber-600 bg-amber-50/50 p-3 rounded-xl flex items-center space-x-3 cursor-pointer hover:border-amber-600 transition-all text-coffee-900" id="label-pickup">
+                            <input type="radio" name="fulfillment" value="pickup" checked onchange="toggleFulfillmentType('pickup')" class="accent-amber-600">
+                            <div>
+                                <p class="font-bold"><i class="fa-solid fa-store text-amber-600 mr-1"></i> Store Pickup</p>
+                                <p class="text-xs text-coffee-600">Ready in ~10-15 mins</p>
+                            </div>
+                        </label>
+                        <label class="border-2 border-coffee-200 p-3 rounded-xl flex items-center space-x-3 cursor-pointer hover:border-amber-600 transition-all text-coffee-900" id="label-delivery">
+                            <input type="radio" name="fulfillment" value="delivery" onchange="toggleFulfillmentType('delivery')" class="accent-amber-600">
+                            <div>
+                                <p class="font-bold"><i class="fa-solid fa-truck-fast text-amber-600 mr-1"></i> Local Delivery</p>
+                                <p class="text-xs text-coffee-600">Est. 25-35 mins (+$2.99)</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Delivery Address Box (Hidden by default) -->
+                <div id="delivery-address-box" class="hidden space-y-3 bg-coffee-50 p-4 rounded-xl border border-coffee-200">
+                    <h4 class="font-semibold text-coffee-900">Delivery Address</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <input type="text" id="delivery-street" placeholder="Street Address" class="w-full p-2.5 bg-white border border-coffee-300 rounded-lg text-xs">
+                        <input type="text" id="delivery-apt" placeholder="Apt / Suite / Unit" class="w-full p-2.5 bg-white border border-coffee-300 rounded-lg text-xs">
+                    </div>
+                </div>
+
+                <!-- Pickup Time Scheduler -->
+                <div id="pickup-time-box" class="space-y-2">
+                    <label class="block text-xs font-bold text-coffee-800 uppercase tracking-wider">Estimated Ready Time</label>
+                    <select id="pickup-time-select" class="w-full p-2.5 bg-white border border-coffee-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500">
+                        <option value="ASAP">ASAP (Approx. 10 - 15 minutes)</option>
+                        <option value="30mins">In 30 Minutes</option>
+                        <option value="45mins">In 45 Minutes</option>
+                        <option value="60mins">In 1 Hour</option>
+                    </select>
+                </div>
+
+                <!-- Orderer Details -->
+                <div class="space-y-3">
+                    <label class="block text-xs font-bold text-coffee-800 uppercase tracking-wider">2. Contact Details</label>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <input type="text" id="cust-name" placeholder="Full Name *" class="w-full p-2.5 bg-white border border-coffee-300 rounded-lg text-xs required">
+                        <input type="tel" id="cust-phone" placeholder="Phone Number *" class="w-full p-2.5 bg-white border border-coffee-300 rounded-lg text-xs required">
+                    </div>
+                    <input type="email" id="cust-email" placeholder="Email Address (for order tracking receipt) *" class="w-full p-2.5 bg-white border border-coffee-300 rounded-lg text-xs required">
+                </div>
+
+                <!-- Simulated Payment Methods -->
+                <div class="space-y-3">
+                    <label class="block text-xs font-bold text-coffee-800 uppercase tracking-wider">3. Payment Option</label>
+                    <div class="grid grid-cols-3 gap-3">
+                        <button type="button" onclick="selectPayment('card')" id="pay-card" class="pay-option-btn border-2 border-amber-600 bg-amber-50 p-2.5 rounded-xl text-center font-medium text-xs flex flex-col items-center justify-center space-y-1">
+                            <i class="fa-regular fa-credit-card text-base text-coffee-800"></i>
+                            <span>Credit Card</span>
+                        </button>
+                        <button type="button" onclick="selectPayment('apple')" id="pay-apple" class="pay-option-btn border-2 border-coffee-200 p-2.5 rounded-xl text-center font-medium text-xs flex flex-col items-center justify-center space-y-1">
+                            <i class="fa-brands fa-apple text-base text-coffee-800"></i>
+                            <span>Apple Pay</span>
+                        </button>
+                        <button type="button" onclick="selectPayment('google')" id="pay-google" class="pay-option-btn border-2 border-coffee-200 p-2.5 rounded-xl text-center font-medium text-xs flex flex-col items-center justify-center space-y-1">
+                            <i class="fa-brands fa-google text-base text-coffee-800"></i>
+                            <span>Google Pay</span>
+                        </button>
+                    </div>
+
+                    <!-- Card Details Fields -->
+                    <div id="card-details-box" class="space-y-3 pt-2">
+                        <input type="text" placeholder="Cardholder Name" value="Jane Doe" class="w-full p-2.5 bg-white border border-coffee-300 rounded-lg text-xs">
+                        <div class="grid grid-cols-3 gap-3">
+                            <input type="text" placeholder="Card Number" value="•••• •••• •••• 4242" class="col-span-2 p-2.5 bg-white border border-coffee-300 rounded-lg text-xs">
+                            <input type="text" placeholder="MM/YY" value="12/28" class="p-2.5 bg-white border border-coffee-300 rounded-lg text-xs">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Checkout Footer -->
+            <div class="p-4 bg-coffee-50 border-t border-coffee-200 flex items-center justify-between flex-shrink-0">
+                <div>
+                    <span class="text-xs text-coffee-600 block">Total Due:</span>
+                    <span id="checkout-final-total" class="font-bold text-xl text-amber-700">$0.00</span>
+                </div>
+                <button onclick="processOrderPayment()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-8 rounded-xl shadow-lg transition-all flex items-center space-x-2">
+                    <i class="fa-solid fa-lock text-sm"></i>
+                    <span>Place Order Now</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- MODAL 4: ORDER CONFIRMATION & LIVE BREWING TRACKER -->
+    <div id="tracker-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-md hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden p-6 text-center space-y-6 animate-in zoom-in-95 duration-300">
+            <!-- Animated Icon Banner -->
+            <div class="relative w-24 h-24 mx-auto flex items-center justify-center">
+                <div class="absolute inset-0 bg-amber-100 rounded-full pulse-glow"></div>
+                <div class="relative w-20 h-20 bg-gradient-to-tr from-amber-600 to-coffee-700 rounded-full flex items-center justify-center text-white text-3xl shadow-lg">
+                    <i id="tracker-icon" class="fa-solid fa-mug-hot"></i>
+                </div>
+            </div>
+
+            <div>
+                <span class="bg-emerald-100 text-emerald-800 text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider">Order Confirmed!</span>
+                <h3 class="font-serif-title text-2xl font-bold text-coffee-950 mt-2">We're Crafting Your Order</h3>
+                <p class="text-xs text-coffee-600 mt-1">Order ID: <span id="tracker-order-id" class="font-mono font-bold text-coffee-800">#AA-8492</span></p>
+            </div>
+
+            <!-- Progress Bar Tracker -->
+            <div class="space-y-2">
+                <div class="flex justify-between text-xs font-semibold text-coffee-700 px-1">
+                    <span id="step-1-label" class="text-amber-600">Received</span>
+                    <span id="step-2-label" class="text-coffee-400">Brewing</span>
+                    <span id="step-3-label" class="text-coffee-400">Ready!</span>
+                </div>
+                <div class="w-full bg-coffee-100 rounded-full h-3 p-0.5 overflow-hidden">
+                    <div id="tracker-progress-bar" class="bg-gradient-to-r from-amber-500 to-emerald-500 h-full rounded-full transition-all duration-1000 w-1/3"></div>
+                </div>
+                <p id="tracker-status-text" class="text-xs text-coffee-600 italic">Your order has been sent to the barista station.</p>
+            </div>
+
+            <!-- Summary Box -->
+            <div class="bg-coffee-50 p-4 rounded-2xl border border-coffee-200 text-left space-y-2 text-xs">
+                <div class="flex justify-between border-b border-coffee-200 pb-2">
+                    <span class="text-coffee-600">Estimated Ready Time:</span>
+                    <span id="tracker-eta" class="font-bold text-coffee-900">~ 12 minutes</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-coffee-600">Fulfillment Method:</span>
+                    <span id="tracker-method" class="font-bold text-coffee-900">Store Pickup</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-coffee-600">Loyalty Earned:</span>
+                    <span id="tracker-points" class="font-bold text-amber-600">+45 Bean Points</span>
+                </div>
+            </div>
+
+            <button onclick="closeTrackerAndReset()" class="w-full bg-coffee-950 hover:bg-coffee-900 text-white font-bold py-3 rounded-xl shadow transition-all">
+                Back to Coffee House
+            </button>
+        </div>
+    </div>
+
+
+    <script>
+        // MENU DATA COLLECTION
+        const menuData = [
+            // Espresso & Hot Coffee
+            {
+                id: 'c1',
+                name: 'Caramel Velvet Latte',
+                category: 'espresso',
+                price: 5.45,
+                description: 'Rich double espresso, silky steamed milk, artisanal vanilla and handcrafted caramel drizzle.',
+                image: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=600&q=80',
+                dietary: ['decaf'],
+                hasSize: true,
+                hasMilk: true,
+                hasSyrup: true,
+                hasShots: true,
+                hasTemp: true
+            },
+            {
+                id: 'c2',
+                name: 'Artisan Cappuccino',
+                category: 'espresso',
+                price: 4.85,
+                description: 'Equal parts dark espresso, hot milk, and deep velvet foam topped with dusting of cocoa.',
+                image: 'https://images.unsplash.com/photo-1572442388796-11668ba69e54?auto=format&fit=crop&w=600&q=80',
+                dietary: ['decaf', 'dairy-free'],
+                hasSize: true,
+                hasMilk: true,
+                hasSyrup: true,
+                hasShots: true,
+                hasTemp: true
+            },
+            {
+                id: 'c3',
+                name: 'Smokey Hazelnut Mocha',
+                category: 'espresso',
+                price: 5.75,
+                description: 'Espresso with rich Dutch dark chocolate cocoa, hazelnut reduction, and steamed milk.',
+                image: 'https://images.unsplash.com/photo-1578314675249-a6910f80cc4e?auto=format&fit=crop&w=600&q=80',
+                dietary: ['decaf'],
+                hasSize: true,
+                hasMilk: true,
+                hasSyrup: true,
+                hasShots: true,
+                hasTemp: true
+            },
+            {
+                id: 'c4',
+                name: 'Classic Americano',
+                category: 'espresso',
+                price: 3.95,
+                description: 'Espresso shots topped with hot water to produce a light layer of crema. Crisp & robust.',
+                image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80',
+                dietary: ['vegan', 'gluten-free', 'dairy-free', 'decaf'],
+                hasSize: true,
+                hasMilk: true,
+                hasSyrup: true,
+                hasShots: true,
+                hasTemp: true
+            },
+
+            // Cold Brews & Iced
+            {
+                id: 'cb1',
+                name: 'Vanilla Sweet Cream Cold Brew',
+                category: 'coldbrew',
+                price: 5.65,
+                description: 'Slow-steeped for 20 hours, custom house cold brew topped with delicate vanilla sweet cream.',
+                image: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?auto=format&fit=crop&w=600&q=80',
+                dietary: ['gluten-free'],
+                hasSize: true,
+                hasMilk: true,
+                hasSyrup: true,
+                hasShots: true,
+                hasTemp: false
+            },
+            {
+                id: 'cb2',
+                name: 'Nitro Cloud Brew',
+                category: 'coldbrew',
+                price: 5.95,
+                description: 'Infused with nitrogen as it pours from the tap to create a velvety, naturally sweet draft coffee.',
+                image: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?auto=format&fit=crop&w=600&q=80',
+                dietary: ['vegan', 'gluten-free', 'dairy-free'],
+                hasSize: true,
+                hasMilk: false,
+                hasSyrup: true,
+                hasShots: true,
+                hasTemp: false
+            },
+
+            // Artisanal Teas
+            {
+                id: 't1',
+                name: 'Matcha Oat Latte',
+                category: 'teas',
+                price: 5.85,
+                description: 'Ceremonial grade Uji Japanese green tea whisked smooth with creamy oat milk and raw agave.',
+                image: 'https://images.unsplash.com/photo-1536256263959-770b48d82b0a?auto=format&fit=crop&w=600&q=80',
+                dietary: ['vegan', 'dairy-free'],
+                hasSize: true,
+                hasMilk: true,
+                hasSyrup: true,
+                hasShots: false,
+                hasTemp: true
+            },
+            {
+                id: 't2',
+                name: 'Golden Spiced Chai Latte',
+                category: 'teas',
+                price: 5.25,
+                description: 'Black tea infused with cardamom, cinnamon, clove, ginger, steamed with milk.',
+                image: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=600&q=80',
+                dietary: ['gluten-free'],
+                hasSize: true,
+                hasMilk: true,
+                hasSyrup: true,
+                hasShots: false,
+                hasTemp: true
+            },
+
+            // Pastries & Bakery
+            {
+                id: 'p1',
+                name: 'Butter Croissant',
+                category: 'pastries',
+                price: 3.95,
+                description: 'Classic French viennoiserie pastry with delicate, flaky, buttery layers.',
+                image: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=600&q=80',
+                dietary: [],
+                hasSize: false,
+                hasMilk: false,
+                hasSyrup: false,
+                hasShots: false,
+                hasTemp: false
+            },
+            {
+                id: 'p2',
+                name: 'Blueberry Almond Tart',
+                category: 'pastries',
+                price: 4.50,
+                description: 'Fresh organic blueberry compote baked in a gluten-free almond crust.',
+                image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=600&q=80',
+                dietary: ['gluten-free', 'vegan'],
+                hasSize: false,
+                hasMilk: false,
+                hasSyrup: false,
+                hasShots: false,
+                hasTemp: false
+            },
+
+            // Sandwiches
+            {
+                id: 's1',
+                name: 'Avocado & Egg Brioche',
+                category: 'sandwiches',
+                price: 8.95,
+                description: 'Cage-free fried egg, smashed hass avocado, aged cheddar, and microgreens on toasted brioche.',
+                image: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=600&q=80',
+                dietary: [],
+                hasSize: false,
+                hasMilk: false,
+                hasSyrup: false,
+                hasShots: false,
+                hasTemp: false
+            },
+            {
+                id: 's2',
+                name: 'Plant-Protein Pesto Panini',
+                category: 'sandwiches',
+                price: 9.45,
+                description: 'Roasted tomatoes, vegan basil pesto, plant-based mozzarella on sourdough bread.',
+                image: 'https://images.unsplash.com/photo-1509722747041-616f39b57569?auto=format&fit=crop&w=600&q=80',
+                dietary: ['vegan', 'dairy-free'],
+                hasSize: false,
+                hasMilk: false,
+                hasSyrup: false,
+                hasShots: false,
+                hasTemp: false
+            }
+        ];
+
+        const categories = [
+            { id: 'all', label: 'All Menu Items', icon: 'fa-layer-group' },
+            { id: 'espresso', label: 'Espresso & Hot', icon: 'fa-mug-hot' },
+            { id: 'coldbrew', label: 'Cold Brews & Iced', icon: 'fa-glass-water-droplet' },
+            { id: 'teas', label: 'Artisanal Teas', icon: 'fa-leaf' },
+            { id: 'pastries', label: 'Pastries & Bakery', icon: 'fa-bread-slice' },
+            { id: 'sandwiches', label: 'Breakfast Sandwiches', icon: 'fa-burger' }
+        ];
+
+        // GLOBAL APPLICATION STATE
+        let currentCategory = 'all';
+        let activeDietaryFilters = [];
+        let cart = [];
+        let activeTipRate = 0.15;
+        let activeDiscount = 0;
+        let appliedPromo = null;
+        let currentSelectedItem = null;
+        let selectedFulfillment = 'pickup';
+
+        // Temporary Modal Customization State
+        let modalState = {
+            qty: 1,
+            size: 'Medium', // Small (+$0), Medium (+$0.50), Large (+$1.00)
+            milk: 'Whole Milk',
+            syrup: 'None',
+            shots: 0, // +$0.80 per extra shot
+            temp: 'Hot',
+            notes: ''
+        };
+
+        // DOM LOAD INITIALIZATION
+        window.onload = function() {
+            renderCategoryTabs();
+            renderMenuItems();
+            updateCartUI();
+        };
+
+        function renderCategoryTabs() {
+            const container = document.getElementById('category-tabs');
+            container.innerHTML = categories.map(cat => `
+                <button onclick="setCategory('${cat.id}')" 
+                        class="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center space-x-2 flex-shrink-0 transition-all ${
+                            currentCategory === cat.id 
+                            ? 'bg-coffee-950 text-white shadow-md' 
+                            : 'bg-white text-coffee-800 hover:bg-coffee-100 border border-coffee-200'
+                        }">
+                    <i class="fa-solid ${cat.icon} ${currentCategory === cat.id ? 'text-amber-400' : 'text-coffee-600'}"></i>
+                    <span>${cat.label}</span>
+                </button>
+            `).join('');
+        }
+
+        function setCategory(catId) {
+            currentCategory = catId;
+            renderCategoryTabs();
+            renderMenuItems();
+        }
+
+        function toggleDietaryFilter(filterKey) {
+            const index = activeDietaryFilters.indexOf(filterKey);
+            const btn = document.getElementById(`diet-${filterKey}`);
+            
+            if (index > -1) {
+                activeDietaryFilters.splice(index, 1);
+                btn.classList.remove('bg-amber-600', 'text-white', 'border-amber-600');
+                btn.classList.add('bg-white', 'text-coffee-800');
+            } else {
+                activeDietaryFilters.push(filterKey);
+                btn.classList.add('bg-amber-600', 'text-white', 'border-amber-600');
+                btn.classList.remove('bg-white', 'text-coffee-800');
+            }
+
+            const clearBtn = document.getElementById('diet-clear');
+            if (activeDietaryFilters.length > 0) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+            }
+
+            renderMenuItems();
+        }
+
+        function clearDietaryFilters() {
+            activeDietaryFilters = [];
+            document.querySelectorAll('.diet-btn').forEach(btn => {
+                btn.classList.remove('bg-amber-600', 'text-white', 'border-amber-600');
+                btn.classList.add('bg-white', 'text-coffee-800');
+            });
+            document.getElementById('diet-clear').classList.add('hidden');
+            renderMenuItems();
+        }
+
+        function handleSearchOrFilterChange() {
+            renderMenuItems();
+        }
+
+        function resetSearchAndFilters() {
+            document.getElementById('menu-search').value = '';
+            clearDietaryFilters();
+            setCategory('all');
+        }
+
+        function renderMenuItems() {
+            const grid = document.getElementById('menu-grid');
+            const emptyState = document.getElementById('empty-state');
+            const searchQuery = document.getElementById('menu-search').value.toLowerCase().trim();
+
+            const filtered = menuData.filter(item => {
+                // Category match
+                const matchCategory = (currentCategory === 'all' || item.category === currentCategory);
+                
+                // Search match
+                const matchSearch = item.name.toLowerCase().includes(searchQuery) || 
+                                    item.description.toLowerCase().includes(searchQuery);
+                
+                // Dietary filter match (must include all selected dietary tags)
+                const matchDiet = activeDietaryFilters.every(diet => item.dietary.includes(diet));
+
+                return matchCategory && matchSearch && matchDiet;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            grid.innerHTML = filtered.map(item => `
+                <div class="bg-white rounded-2xl border border-coffee-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
+                    <div>
+                        <!-- Image Container -->
+                        <div class="relative h-48 overflow-hidden bg-coffee-100">
+                            <img src="${item.image}" alt="${item.name}" 
+                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                 onerror="this.src='https://placehold.co/600x400/58372b/ffffff?text=${encodeURIComponent(item.name)}'">
+                            <div class="absolute top-3 left-3 flex flex-wrap gap-1">
+                                ${item.dietary.map(d => `<span class="bg-black/60 backdrop-blur-md text-white text-[10px] px-2 py-0.5 rounded-full capitalize">${d}</span>`).join('')}
+                            </div>
+                        </div>
+
+                        <!-- Info -->
+                        <div class="p-5">
+                            <div class="flex items-start justify-between">
+                                <h3 class="font-serif-title font-bold text-lg text-coffee-950">${item.name}</h3>
+                                <span class="font-bold text-amber-700 text-base">$${item.price.toFixed(2)}</span>
+                            </div>
+                            <p class="text-xs text-coffee-600 mt-2 line-clamp-2 leading-relaxed">${item.description}</p>
+                        </div>
+                    </div>
+
+                    <!-- Card Actions -->
+                    <div class="p-5 pt-0">
+                        <button onclick="openCustomizeModal('${item.id}')" class="w-full bg-coffee-100 hover:bg-amber-600 hover:text-white text-coffee-900 text-xs font-bold py-2.5 rounded-xl transition-colors flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-plus text-xs"></i>
+                            <span>Select & Customize</span>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openCustomizeModal(itemId) {
+            currentSelectedItem = menuData.find(i => i.id === itemId);
+            if (!currentSelectedItem) return;
+
+            // Reset modal state defaults
+            modalState = {
+                qty: 1,
+                size: currentSelectedItem.hasSize ? 'Medium' : 'Standard',
+                milk: 'Whole Milk',
+                syrup: 'None',
+                shots: 0,
+                temp: 'Hot',
+                notes: ''
+            };
+
+            // Set Title & Price
+            document.getElementById('modal-item-title').innerText = currentSelectedItem.name;
+            document.getElementById('modal-item-price').innerText = `$${currentSelectedItem.price.toFixed(2)}`;
+            document.getElementById('modal-item-image').src = currentSelectedItem.image;
+
+            // Build Options Dynamic UI
+            const optionsContainer = document.getElementById('modal-options-container');
+            let html = '';
+
+            // Temperature option (if applicable)
+            if (currentSelectedItem.hasTemp) {
+                html += `
+                    <div>
+                        <label class="block font-bold text-xs uppercase tracking-wider text-coffee-800 mb-2">Temperature</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button type="button" onclick="setModalOption('temp', 'Hot')" id="temp-Hot" class="opt-btn p-2 rounded-xl border border-coffee-300 text-xs font-semibold">🔥 Hot</button>
+                            <button type="button" onclick="setModalOption('temp', 'Iced')" id="temp-Iced" class="opt-btn p-2 rounded-xl border border-coffee-300 text-xs font-semibold">🧊 Iced</button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Size selection (if applicable)
+            if (currentSelectedItem.hasSize) {
+                html += `
+                    <div>
+                        <label class="block font-bold text-xs uppercase tracking-wider text-coffee-800 mb-2">Select Cup Size</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button type="button" onclick="setModalOption('size', 'Small')" id="size-Small" class="opt-btn p-2 rounded-xl border border-coffee-300 text-xs font-semibold text-center">Small (12oz)</button>
+                            <button type="button" onclick="setModalOption('size', 'Medium')" id="size-Medium" class="opt-btn p-2 rounded-xl border border-coffee-300 text-xs font-semibold text-center">Medium (16oz) +$0.50</button>
+                            <button type="button" onclick="setModalOption('size', 'Large')" id="size-Large" class="opt-btn p-2 rounded-xl border border-coffee-300 text-xs font-semibold text-center">Large (20oz) +$1.00</button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Milk Choice
+            if (currentSelectedItem.hasMilk) {
+                html += `
+                    <div>
+                        <label class="block font-bold text-xs uppercase tracking-wider text-coffee-800 mb-2">Milk Choice</label>
+                        <select onchange="setModalOption('milk', this.value)" class="w-full p-2.5 bg-white border border-coffee-300 rounded-xl text-xs font-medium focus:ring-2 focus:ring-amber-500">
+                            <option value="Whole Milk">Whole Milk (Standard)</option>
+                            <option value="Oat Milk">Oat Milk (+$0.60)</option>
+                            <option value="Almond Milk">Almond Milk (+$0.60)</option>
+                            <option value="Skim Milk">Skim Milk</option>
+                            <option value="Coconut Milk">Coconut Milk (+$0.60)</option>
+                        </select>
+                    </div>
+                `;
+            }
+
+            // Syrup Flavors
+            if (currentSelectedItem.hasSyrup) {
+                html += `
+                    <div>
+                        <label class="block font-bold text-xs uppercase tracking-wider text-coffee-800 mb-2">Syrup & Sweetness</label>
+                        <select onchange="setModalOption('syrup', this.value)" class="w-full p-2.5 bg-white border border-coffee-300 rounded-xl text-xs font-medium focus:ring-2 focus:ring-amber-500">
+                            <option value="None">No Added Syrup</option>
+                            <option value="Vanilla">Madagascar Vanilla (+$0.50)</option>
+                            <option value="Caramel">Handcrafted Caramel (+$0.50)</option>
+                            <option value="Hazelnut">Roasted Hazelnut (+$0.50)</option>
+                            <option value="Sugar Free Vanilla">Sugar-Free Vanilla (+$0.50)</option>
+                        </select>
+                    </div>
+                `;
+            }
+
+            // Espresso Shots
+            if (currentSelectedItem.hasShots) {
+                html += `
+                    <div>
+                        <label class="block font-bold text-xs uppercase tracking-wider text-coffee-800 mb-2">Extra Espresso Shots</label>
+                        <div class="flex items-center space-x-4 bg-coffee-50 p-3 rounded-xl border border-coffee-200">
+                            <span class="text-xs font-medium text-coffee-800">Add Shots (+$0.80 each)</span>
+                            <div class="flex items-center space-x-2 ml-auto">
+                                <button type="button" onclick="adjustShots(-1)" class="w-7 h-7 bg-white border rounded-lg font-bold">-</button>
+                                <span id="modal-shots-count" class="font-bold text-xs">0</span>
+                                <button type="button" onclick="adjustShots(1)" class="w-7 h-7 bg-white border rounded-lg font-bold">+</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Special Instructions Text Area
+            html += `
+                <div>
+                    <label class="block font-bold text-xs uppercase tracking-wider text-coffee-800 mb-1">Special Instructions</label>
+                    <textarea id="modal-notes" oninput="modalState.notes = this.value" rows="2" placeholder="e.g., Extra hot, light foam, decaf..." class="w-full p-2.5 bg-white border border-coffee-300 rounded-xl text-xs focus:ring-2 focus:ring-amber-500"></textarea>
+                </div>
+            `;
+
+            optionsContainer.innerHTML = html;
+            updateModalPriceCalculation();
+
+            document.getElementById('customize-modal').classList.remove('hidden');
+        }
+
+        function closeCustomizeModal() {
+            document.getElementById('customize-modal').classList.add('hidden');
+        }
+
+        function setModalOption(key, val) {
+            modalState[key] = val;
+            updateModalPriceCalculation();
+        }
+
+        function adjustShots(delta) {
+            modalState.shots = Math.max(0, modalState.shots + delta);
+            const countEl = document.getElementById('modal-shots-count');
+            if (countEl) countEl.innerText = modalState.shots;
+            updateModalPriceCalculation();
+        }
+
+        function adjustModalQty(delta) {
+            modalState.qty = Math.max(1, modalState.qty + delta);
+            document.getElementById('modal-qty').innerText = modalState.qty;
+            updateModalPriceCalculation();
+        }
+
+        function calculateSingleItemPrice() {
+            if (!currentSelectedItem) return 0;
+            let price = currentSelectedItem.price;
+
+            // Size addon
+            if (modalState.size === 'Medium') price += 0.50;
+            if (modalState.size === 'Large') price += 1.00;
+
+            // Milk addon
+            if (['Oat Milk', 'Almond Milk', 'Coconut Milk'].includes(modalState.milk)) price += 0.60;
+
+            // Syrup addon
+            if (modalState.syrup !== 'None') price += 0.50;
+
+            // Shots addon
+            price += (modalState.shots * 0.80);
+
+            return price;
+        }
+
+        function updateModalPriceCalculation() {
+            const unitPrice = calculateSingleItemPrice();
+            const total = unitPrice * modalState.qty;
+            document.getElementById('modal-total-btn-price').innerText = `$${total.toFixed(2)}`;
+
+            // Highlight size buttons
+            ['Small', 'Medium', 'Large'].forEach(sz => {
+                const btn = document.getElementById(`size-${sz}`);
+                if (btn) {
+                    if (modalState.size === sz) {
+                        btn.className = "opt-btn p-2 rounded-xl border-2 border-amber-600 bg-amber-50 text-amber-900 text-xs font-semibold text-center";
+                    } else {
+                        btn.className = "opt-btn p-2 rounded-xl border border-coffee-300 bg-white text-coffee-800 text-xs font-semibold text-center";
+                    }
+                }
+            });
+
+            // Highlight temp buttons
+            ['Hot', 'Iced'].forEach(tmp => {
+                const btn = document.getElementById(`temp-${tmp}`);
+                if (btn) {
+                    if (modalState.temp === tmp) {
+                        btn.className = "opt-btn p-2 rounded-xl border-2 border-amber-600 bg-amber-50 text-amber-900 text-xs font-semibold";
+                    } else {
+                        btn.className = "opt-btn p-2 rounded-xl border border-coffee-300 bg-white text-coffee-800 text-xs font-semibold";
+                    }
+                }
+            });
+        }
+
+        function confirmAddToCart() {
+            const unitPrice = calculateSingleItemPrice();
+            
+            // Build custom details string
+            const detailsArr = [];
+            if (currentSelectedItem.hasTemp) detailsArr.push(modalState.temp);
+            if (currentSelectedItem.hasSize) detailsArr.push(modalState.size);
+            if (currentSelectedItem.hasMilk && modalState.milk !== 'Whole Milk') detailsArr.push(modalState.milk);
+            if (currentSelectedItem.hasSyrup && modalState.syrup !== 'None') detailsArr.push(modalState.syrup);
+            if (modalState.shots > 0) detailsArr.push(`+${modalState.shots} Shot(s)`);
+            if (modalState.notes) detailsArr.push(`Note: "${modalState.notes}"`);
+
+            const cartItem = {
+                cartItemId: Date.now() + Math.random().toString(),
+                id: currentSelectedItem.id,
+                name: currentSelectedItem.name,
+                unitPrice: unitPrice,
+                qty: modalState.qty,
+                details: detailsArr.join(' • '),
+                image: currentSelectedItem.image
+            };
+
+            cart.push(cartItem);
+            closeCustomizeModal();
+            updateCartUI();
+            toggleCartDrawer(true);
+        }
+
+        function toggleCartDrawer(open) {
+            const drawer = document.getElementById('cart-drawer');
+            const backdrop = document.getElementById('cart-drawer-backdrop');
+            
+            if (open) {
+                drawer.classList.remove('translate-x-full');
+                backdrop.classList.remove('hidden');
+            } else {
+                drawer.classList.add('translate-x-full');
+                backdrop.classList.add('hidden');
+            }
+        }
+
+        function updateCartUI() {
+            const container = document.getElementById('cart-items-container');
+            const badge = document.getElementById('cart-badge');
+            const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+
+            badge.innerText = totalQty;
+
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-16 space-y-3">
+                        <i class="fa-solid fa-basket-shopping text-4xl text-coffee-300"></i>
+                        <p class="text-coffee-600 font-medium">Your coffee basket is empty.</p>
+                        <button onclick="toggleCartDrawer(false)" class="text-amber-700 font-bold text-xs underline">Browse Menu</button>
+                    </div>
+                `;
+                document.getElementById('checkout-btn').disabled = true;
+            } else {
+                document.getElementById('checkout-btn').disabled = false;
+                container.innerHTML = cart.map(item => `
+                    <div class="bg-coffee-50/60 p-3.5 rounded-2xl border border-coffee-200 flex items-start space-x-3">
+                        <img src="${item.image}" alt="${item.name}" class="w-14 h-14 rounded-xl object-cover flex-shrink-0">
+                        <div class="flex-grow min-w-0">
+                            <div class="flex justify-between items-start">
+                                <h4 class="font-serif-title font-bold text-coffee-950 text-sm truncate">${item.name}</h4>
+                                <button onclick="removeCartItem('${item.cartItemId}')" class="text-coffee-400 hover:text-red-500 text-xs ml-2">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                            <p class="text-[11px] text-coffee-600 mt-0.5 leading-snug">${item.details || 'Standard Preparation'}</p>
+                            
+                            <div class="flex items-center justify-between mt-2 pt-2 border-t border-coffee-200/60">
+                                <span class="font-bold text-amber-700 text-xs">$${(item.unitPrice * item.qty).toFixed(2)}</span>
+                                <div class="flex items-center space-x-2 bg-white border border-coffee-300 rounded-lg px-2 py-0.5">
+                                    <button onclick="changeCartQty('${item.cartItemId}', -1)" class="text-coffee-600 font-bold text-xs">-</button>
+                                    <span class="text-xs font-bold px-1">${item.qty}</span>
+                                    <button onclick="changeCartQty('${item.cartItemId}', 1)" class="text-coffee-600 font-bold text-xs">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            calculateCartTotals();
+        }
+
+        function changeCartQty(cartItemId, delta) {
+            const item = cart.find(i => i.cartItemId === cartItemId);
+            if (!item) return;
+            item.qty += delta;
+            if (item.qty <= 0) {
+                cart = cart.filter(i => i.cartItemId !== cartItemId);
+            }
+            updateCartUI();
+        }
+
+        function removeCartItem(cartItemId) {
+            cart = cart.filter(i => i.cartItemId !== cartItemId);
+            updateCartUI();
+        }
+
+        function setTip(rate) {
+            activeTipRate = rate;
+            document.querySelectorAll('.tip-btn').forEach(btn => {
+                if (parseFloat(btn.getAttribute('data-tip')) === rate) {
+                    btn.className = "tip-btn p-1.5 rounded border-2 border-amber-600 bg-amber-50 font-bold text-amber-900 text-center";
+                } else {
+                    btn.className = "tip-btn p-1.5 rounded border border-coffee-300 bg-white font-medium text-center";
+                }
+            });
+            calculateCartTotals();
+        }
+
+        function applyPromoCode() {
+            const code = document.getElementById('promo-input').value.trim().toUpperCase();
+            const msg = document.getElementById('promo-message');
+
+            if (code === 'COFFEE10') {
+                activeDiscount = 0.10; // 10% off
+                appliedPromo = 'COFFEE10';
+                msg.className = "text-xs text-emerald-700 font-bold block";
+                msg.innerText = "✓ 10% Discount applied successfully!";
+            } else if (code === '') {
+                activeDiscount = 0;
+                appliedPromo = null;
+                msg.className = "hidden";
+            } else {
+                msg.className = "text-xs text-red-600 font-medium block";
+                msg.innerText = "Invalid promo code. Try 'COFFEE10'";
+            }
+            calculateCartTotals();
+        }
+
+        function calculateCartTotals() {
+            const subtotal = cart.reduce((sum, item) => sum + (item.unitPrice * item.qty), 0);
+            const discountAmt = subtotal * activeDiscount;
+            const discountedSubtotal = subtotal - discountAmt;
+            const tax = discountedSubtotal * 0.08; // 8% Tax
+            const tip = discountedSubtotal * activeTipRate;
+            const grandTotal = discountedSubtotal + tax + tip;
+
+            // Loyalty Points: 10 points per dollar of subtotal
+            const earnedPoints = Math.floor(subtotal * 10);
+
+            // Update UI elements
+            document.getElementById('summary-subtotal').innerText = `$${subtotal.toFixed(2)}`;
+            
+            const discRow = document.getElementById('summary-discount-row');
+            if (activeDiscount > 0) {
+                discRow.classList.remove('hidden');
+                document.getElementById('summary-discount').innerText = `-$${discountAmt.toFixed(2)}`;
+            } else {
+                discRow.classList.add('hidden');
+            }
+
+            document.getElementById('summary-tax').innerText = `$${tax.toFixed(2)}`;
+            document.getElementById('summary-tip').innerText = `$${tip.toFixed(2)}`;
+            document.getElementById('summary-total').innerText = `$${grandTotal.toFixed(2)}`;
+            document.getElementById('checkout-final-total').innerText = `$${grandTotal.toFixed(2)}`;
+            document.getElementById('cart-loyalty-points').innerText = `+${earnedPoints} pts earned`;
+        }
+
+        function openCheckoutModal() {
+            if (cart.length === 0) return;
+            toggleCartDrawer(false);
+            document.getElementById('checkout-modal').classList.remove('hidden');
+        }
+
+        function closeCheckoutModal() {
+            document.getElementById('checkout-modal').classList.add('hidden');
+        }
+
+        function toggleFulfillmentType(type) {
+            selectedFulfillment = type;
+            const addrBox = document.getElementById('delivery-address-box');
+            const pickupBox = document.getElementById('pickup-time-box');
+            const labelPickup = document.getElementById('label-pickup');
+            const labelDelivery = document.getElementById('label-delivery');
+
+            if (type === 'delivery') {
+                addrBox.classList.remove('hidden');
+                pickupBox.classList.add('hidden');
+                labelDelivery.className = "border-2 border-amber-600 bg-amber-50/50 p-3 rounded-xl flex items-center space-x-3 cursor-pointer text-coffee-900";
+                labelPickup.className = "border-2 border-coffee-200 p-3 rounded-xl flex items-center space-x-3 cursor-pointer text-coffee-900";
+            } else {
+                addrBox.classList.add('hidden');
+                pickupBox.classList.remove('hidden');
+                labelPickup.className = "border-2 border-amber-600 bg-amber-50/50 p-3 rounded-xl flex items-center space-x-3 cursor-pointer text-coffee-900";
+                labelDelivery.className = "border-2 border-coffee-200 p-3 rounded-xl flex items-center space-x-3 cursor-pointer text-coffee-900";
+            }
+        }
+
+        function selectPayment(method) {
+            ['card', 'apple', 'google'].forEach(m => {
+                const btn = document.getElementById(`pay-${m}`);
+                if (m === method) {
+                    btn.className = "pay-option-btn border-2 border-amber-600 bg-amber-50 p-2.5 rounded-xl text-center font-medium text-xs flex flex-col items-center justify-center space-y-1";
+                } else {
+                    btn.className = "pay-option-btn border-2 border-coffee-200 bg-white p-2.5 rounded-xl text-center font-medium text-xs flex flex-col items-center justify-center space-y-1";
+                }
+            });
+
+            const cardBox = document.getElementById('card-details-box');
+            if (method === 'card') {
+                cardBox.classList.remove('hidden');
+            } else {
+                cardBox.classList.add('hidden');
+            }
+        }
+
+        function processOrderPayment() {
+            const name = document.getElementById('cust-name').value.trim();
+            const phone = document.getElementById('cust-phone').value.trim();
+            const email = document.getElementById('cust-email').value.trim();
+
+            if (!name || !phone || !email) {
+                alert('Please complete all required contact details.');
+                return;
+            }
+
+            closeCheckoutModal();
+
+            // Populate Confirmation Modal Details
+            const orderId = '#AA-' + Math.floor(1000 + Math.random() * 9000);
+            const subtotal = cart.reduce((sum, item) => sum + (item.unitPrice * item.qty), 0);
+            const earnedPoints = Math.floor(subtotal * 10);
+
+            document.getElementById('tracker-order-id').innerText = orderId;
+            document.getElementById('tracker-points').innerText = `+${earnedPoints} Bean Points`;
+            document.getElementById('tracker-method').innerText = selectedFulfillment === 'delivery' ? 'Local Doorstep Delivery' : 'Store Pickup';
+            document.getElementById('tracker-eta').innerText = selectedFulfillment === 'delivery' ? '~ 25 - 35 mins' : '~ 10 - 15 mins';
+
+            // Open Live Tracker Modal
+            document.getElementById('tracker-modal').classList.remove('hidden');
+
+            // Trigger Animated Progress Tracker
+            startBrewingProgressTracker();
+        }
+
+        function startBrewingProgressTracker() {
+            const bar = document.getElementById('tracker-progress-bar');
+            const statusTxt = document.getElementById('tracker-status-text');
+            const icon = document.getElementById('tracker-icon');
+            const label2 = document.getElementById('step-2-label');
+            const label3 = document.getElementById('step-3-label');
+
+            // Stage 1: Received (Default)
+            bar.style.width = '30%';
+            statusTxt.innerText = 'Order received! Transmitting details to our head barista...';
+            icon.className = 'fa-solid fa-mug-hot';
+
+            // Stage 2: Brewing after 3 seconds
+            setTimeout(() => {
+                bar.style.width = '65%';
+                statusTxt.innerText = 'Barista is grinding fresh beans & steaming milk...';
+                label2.classList.replace('text-coffee-400', 'text-amber-600');
+                icon.className = 'fa-solid fa-fire-burner';
+            }, 3000);
+
+            // Stage 3: Ready after 7 seconds
+            setTimeout(() => {
+                bar.style.width = '100%';
+                statusTxt.innerText = 'Order complete! Ready at counter for pickup.';
+                label3.classList.replace('text-coffee-400', 'text-emerald-600');
+                icon.className = 'fa-solid fa-circle-check';
+            }, 7000);
+        }
+
+        function closeTrackerAndReset() {
+            document.getElementById('tracker-modal').classList.add('hidden');
+            // Empty Cart after completion
+            cart = [];
+            updateCartUI();
+        }
+
+        // UTILITY FUNCTIONS
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function scrollToRewards() {
+            document.getElementById('rewards-section').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
